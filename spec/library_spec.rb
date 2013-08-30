@@ -2,7 +2,8 @@ require 'spec_helper'
 
 describe "Library" do
   # a list of possible strings:
-  NBSP = "\u00a0"
+  NBSP = "\u00a0"         # non-breaking space character (160)
+  BOX = 194.chr("UTF-8")  # 'box' character (194)
   LINE_END = "\n\r"
   CLOSED = "closed"
   TIMES = "10am to 6pm"
@@ -10,13 +11,13 @@ describe "Library" do
   RAW_INPUT = %{<h3>Opening hours</h3>
 <p>Narnia Library is open: </p>
 <ul>
-<li>Monday - #{CLOSED}#{LINE_END} 
-</li><li>Tuesday -#{NBSP}#{CLOSED}#{LINE_END}
-</li><li>Wednesday - #{TIMES}#{LINE_END}
-</li><li>Thursday -#{NBSP}#{TIMES}#{LINE_END}
-</li><li>Friday - #{NOT_OPEN_NORMALLY}#{LINE_END}
-</li><li>Saturday - 9am to 5pm 
-</li><li>Sunday - 12noon to 5pm </li></ul>}
+<li>Monday - #{CLOSED} #{LINE_END} 
+</li><li>Tuesday -#{NBSP}#{CLOSED} #{LINE_END}
+</li><li>Wednesday - #{TIMES} #{LINE_END}
+</li><li>Thursday -#{NBSP}#{TIMES} #{LINE_END}
+</li><li>Friday - #{NOT_OPEN_NORMALLY} #{LINE_END}
+</li><li>Saturday -#{BOX} #{TIMES} #{LINE_END}
+</li><li>Sunday - 12noon to 5pm</li></ul>}
 
   PRINTED_OUTPUT = %{Narnia Library
 Opening hours:
@@ -26,7 +27,7 @@ Tuesday:    closed
 Wednesday:  10am - 6pm
 Thursday:   10am - 6pm
 Friday:     closed
-Saturday:   9am - 5pm
+Saturday:   10am - 6pm
 Sunday:     12noon - 5pm}
 
   before(:each) do
@@ -89,6 +90,9 @@ Sunday:     12noon - 5pm}
       end
       it "should handle non-breaking spaces" do
         @library.opening_hours[:thursday].opening_time.should == "10am"
+      end
+      it "should handle the unicode box character (194)" do
+        @library.opening_hours[:saturday].opening_time.should == "10am"
       end
     end
   end

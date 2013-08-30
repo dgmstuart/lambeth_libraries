@@ -1,4 +1,5 @@
-require 'library'
+require './library'
+require 'pp'
 
 BASE_URL = "http://www.lambeth.gov.uk"
 LIBRARY_PAGE_URL = "#{BASE_URL}/Services/LeisureCulture/Libraries/LocalLibraries/"
@@ -13,3 +14,7 @@ libraries.each_pair do | name, url |
   puts Library.new(name, "#{BASE_URL}#{url}").display
   puts 
 end
+
+# BRIXTON = Library.new("Brixton Library", "#{BASE_URL}/Services/LeisureCulture/Libraries/LocalLibraries/BrixtonLibrary.htm")
+# puts BRIXTON.display
+# pp BRIXTON.opening_hours
