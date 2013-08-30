@@ -1,16 +1,5 @@
 require 'nokogiri'
 require 'open-uri'
-require 'pry'
-
-BASE_URL = "http://www.lambeth.gov.uk"
-LIBRARY_PAGE_URL = "#{BASE_URL}/Services/LeisureCulture/Libraries/LocalLibraries/"
-
-def libraries
-  page = Nokogiri::HTML(open(LIBRARY_PAGE_URL))
-  names_and_urls = page.css("h2 a").map { |a| [a.text, a['href']] }
-  Hash[names_and_urls]
-end
-
 
 class Library
   attr_reader :name, :url
@@ -95,36 +84,3 @@ class Library
     end
   end
 end
-
-require 'pp'
-# brixton_path = libraries["Brixton Library"]
-# brixton = Library.new("Brixton Library", "#{BASE_URL}#{brixton_path}")
-# pp brixton.url
-# pp brixton.opening_hours
-
-libraries.each_pair do | name, url |
-  puts Library.new(name, "#{BASE_URL}#{url}").display
-  puts 
-end
-
-# def foo
-#   libraries.each_pair |name, url| do 
-#   opening_times
-
-# library_url ="#{BASE_URL}/Services/LeisureCulture/Libraries/LocalLibraries/SouthLambethLibrary.htm"
-
-# library_page = Nokogiri::HTML(open(library_url))
-
-# def opening_times(library_page)
-#   section_title = library_page.at('h3:contains("Opening hours")')
-#   time_list = section_title.next.next
-
-
-# end 
-
-
-
-
-# Library.new
-
-
