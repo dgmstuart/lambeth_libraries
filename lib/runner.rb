@@ -1,5 +1,4 @@
 require './library'
-require 'pp'
 
 BASE_URL = "http://www.lambeth.gov.uk"
 LIBRARY_PAGE_URL = "#{BASE_URL}/Services/LeisureCulture/Libraries/LocalLibraries/"
@@ -10,11 +9,18 @@ def libraries
   Hash[names_and_urls]
 end
 
-libraries.each_pair do | name, url |
-  puts Library.new(name, "#{BASE_URL}#{url}").display
-  puts 
+def display_all
+  libraries.each_pair do | name, url |
+    puts Library.new(name, "#{BASE_URL}#{url}").display
+    puts 
+  end
 end
 
-# BRIXTON = Library.new("Brixton Library", "#{BASE_URL}/Services/LeisureCulture/Libraries/LocalLibraries/BrixtonLibrary.htm")
-# puts BRIXTON.display
-# pp BRIXTON.opening_hours
+def display(library_name)
+  library = Library.new library_name, "#{BASE_URL}/Services/LeisureCulture/Libraries/LocalLibraries/#{library_name.delete(" ")}.htm"
+  puts library.display
+end
+
+display_all
+
+# display("Brixton Library")

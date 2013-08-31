@@ -12,6 +12,7 @@ class Library
 
   def opening_hours
     @library_page = Nokogiri::HTML(open(@url))
+    find_opening_hours_list
     build_opening_hours
   end
 
@@ -38,11 +39,27 @@ class Library
   class ParseError < StandardError  
   end  
 
-  def build_opening_hours
+  def find_opening_hours_list
     section_title = @library_page.at('h3:contains("Opening hours")')
-    opening_hours_nodes = section_title.next.next.next.next.children
-    opening_hours_nodes.inject({}) do |hash, li |
-      cleaned_text = li.text.gsub(194.chr("UTF-8"),'').gsub("to",'').gsub("-",' ')
+
+    # Search through the following few nodes looking for a list of opening hours: 
+    node = section_title
+    i = 0
+    loop do
+      i += 1
+      raise "Couldn't find the list of opening hours in the page" if i > 6
+      node = node.next
+      if (node.name == "ul" || node.name == "p") && node.child.text[0..5]=="Monday"
+        @opening_hours_nodes = node.children.to_a.delete_if { |e| e.name == "br" }
+        # if the list was using a p tag with br tags, we need to remove the brs
+        break
+      end
+    end
+  end
+
+  def build_opening_hours
+    @opening_hours_nodes.inject({}) do |hash, line |
+      cleaned_text = line.text.gsub(194.chr("UTF-8"),'').gsub("to",'').gsub("-",' ')
       array = cleaned_text.split(/[[:space:]]+/)
       hash.update(array.first.downcase.to_sym => parse_hours(array.drop 1))
     end
@@ -75,9 +92,6 @@ class Library
     end
 
     DayOpeningHours.new(params)
-    # parts = hours_string.delete("Â").strip.split(" ")
-    # parts.delete_at(1) if parts.length == 3 && parts[1] == "to"
-    # parts
   end
 
   class DayOpeningHours

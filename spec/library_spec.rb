@@ -17,7 +17,10 @@ describe "Library" do
 </li><li>Thursday -#{NBSP}#{TIMES} #{LINE_END}
 </li><li>Friday - #{NOT_OPEN_NORMALLY} #{LINE_END}
 </li><li>Saturday -#{BOX} #{TIMES} #{LINE_END}
-</li><li>Sunday - 12noon to 5pm</li></ul>}
+</li><li>Sunday - 12noon-5pm</li></ul>}
+  
+  RAW_INPUT_BR = %{<h3>Opening hours <br /></h3>
+<p>Monday - 1pm to 6pm <br />Tuesday – open for activities – see above <br />Wednesday - 10am to 6pm <br />Thursday - 10am to 8pm <br />Friday - 10am to 6pm <br />Saturday - 9am to 5pm <br />Sunday - closed </p>}
 
   PRINTED_OUTPUT = %{Narnia Library
 Opening hours:
@@ -55,13 +58,6 @@ Sunday:     12noon - 5pm}
       @library.should_receive(:open).with("http://url").and_return(RAW_INPUT)
       @library.opening_hours
     end
-    # it "should return an hash of days to DayOpeningHours objects" do
-    #   @library.opening_hours.should be_an_instance_of(Hash)
-    #   days = [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday]
-    #   days.each do |day| 
-    #     @library.opening_hours[day].should be_an_instance_of(Library::DayOpeningHours)
-    #   end
-    # end
     it "should return a hash of days" do
       @library.opening_hours.keys.should == [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday]
     end
@@ -93,6 +89,43 @@ Sunday:     12noon - 5pm}
       end
       it "should handle the unicode box character (194)" do
         @library.opening_hours[:saturday].opening_time.should == "10am"
+      end
+      context "and when the input uses '-' instead of 'to'" do
+        it "should set the opening time" do
+          @library.opening_hours[:sunday].opening_time.should == "12noon"
+        end
+        it "should set the closing time" do
+          @library.opening_hours[:sunday].closing_time.should == "5pm"
+        end
+      end
+    end
+    context "when the list uses br instead of li" do
+      before(:each) do
+        @library.stub(:open).with("http://url").and_return(RAW_INPUT_BR)
+      end
+      it "should return a hash of days" do
+        @library.opening_hours.keys.should == [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday]
+      end
+      context "when the library is closed" do
+         it "should create an object with a 'closed' set to true" do
+          @library.opening_hours[:sunday].closed?.should be_true
+        end
+      end
+      context "when the library isn't open as normal" do
+        it "should treat it as though it were closed" do
+          @library.opening_hours[:tuesday].closed?.should be_true
+        end
+      end
+      context "when the library is not closed" do  
+        it "should create an object with closed set to false" do
+          @library.opening_hours[:wednesday].closed.should be_false
+        end
+        it "should set the opening time" do
+          @library.opening_hours[:wednesday].opening_time.should == "10am"
+        end
+        it "should set the closing time" do
+          @library.opening_hours[:wednesday].closing_time.should == "6pm"
+        end
       end
     end
   end
