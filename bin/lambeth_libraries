@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+require '../lib/runner'
+
+if ARGV.empty? || ARGV[0] == "all"
+  Runner.display_all
+elsif ARGV[0] == "list"
+  puts Runner.list
+elsif Runner.list.include?(ARGV.join(" ")) || Runner.list.include?((ARGV << "Library").join(" "))
+  Runner.display(ARGV.join(" "))
+else
+  puts %{Usage:
+  lambeth_libraries                 # Display opening hours for all 9 libraries
+  lambeth_libraries [LIBRARY_NAME]  # Display opening hours for one library 
+  lambeth_libraries list            # Display the list of library names}
+end
