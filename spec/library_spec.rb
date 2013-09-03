@@ -20,7 +20,7 @@ describe "Library" do
 </li><li>Sunday - 12noon-5pm</li></ul>}
   
   RAW_INPUT_BR = %{<h3>Opening hours <br /></h3>
-<p>Monday - 1pm to 6pm <br />Tuesday – open for activities – see above <br />Wednesday - 10am to 6pm <br />Thursday - 10am to 8pm <br />Friday - 10am to 6pm <br />Saturday - 9am to 5pm <br />Sunday - closed </p>}
+<p>Monday - 1pm to 6pm <br />Tuesday - open for activities - see above <br />Wednesday - 10am to 6pm <br />Thursday - 10am to 8pm <br />Friday - 10am to 6pm <br />Saturday - 9am to 5pm <br />Sunday - closed </p>}
 
   PRINTED_OUTPUT = %{Narnia Library
 Opening hours:

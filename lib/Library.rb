@@ -40,15 +40,22 @@ class Library
   end  
 
   def find_opening_hours_list
-    section_title = @library_page.at('h3:contains("Opening hours")')
+    section_title = @library_page.at("//h2[     contains(., 'Opening hours') ]")
+    section_title = @library_page.at("//h3[     contains(., 'Opening hours') ]") if section_title.nil?
+    section_title = @library_page.at("//strong[ contains(., 'Opening hours') ]") if section_title.nil?
+    section_title =@library_page.at( "//text()[ contains(., 'Opening hours') ]") if section_title.nil?
+    section_title =@library_page.at( "//text()[ contains(., 'is open') ]") if section_title.nil?
 
+    raise "Couldn't find the \"Opening hours\" title in the page (#{@url})" if section_title.nil?
+    # section_title = @library_page.at('strong:contains("Opening hours")') if section_title.nil?
+    
     # Search through the following few nodes looking for a list of opening hours: 
     node = section_title
     i = 0
     loop do
       i += 1
-      raise "Couldn't find the list of opening hours in the page" if i > 6
       node = node.next
+      raise "Couldn't find the list of opening hours in the page (#{@url})" if i > 6 || node.nil?
       if (node.name == "ul" || node.name == "p") && node.child.text[0..5]=="Monday"
         @opening_hours_nodes = node.children.to_a.delete_if { |e| e.name == "br" }
         # if the list was using a p tag with br tags, we need to remove the brs
