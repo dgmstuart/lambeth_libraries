@@ -8,7 +8,7 @@ TODO:
 
 * Make into a gem
 * Add more features:
-** Show opening hours for today
+    * Show opening hours for today
 
 Feedback
 --------
@@ -31,12 +31,12 @@ Until I make this a gem, you'll need to do a couple of steps to install it. Firs
 
 1. Clone the repo
 2. Install the bundled gems:
-    
-    % bundle install
+
+        % bundle install
     
 3. Add the bin directory to your path - e.g. add the following line into your .bashrc:
 
-   % export PATH="path/to/directory/lambeth_libraries/bin/:$PATH"
+        export PATH="path/to/directory/lambeth_libraries/bin/:$PATH"
    
 Usage
 ------
