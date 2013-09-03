@@ -7,6 +7,7 @@ TODO:
 -----
 
 * Make into a gem
+* Create a webpage that periodically scrapes this data and displays it all on one page
 * Add more features:
     * Show opening hours for today
 
