@@ -54,66 +54,25 @@ Sunday:     12noon - 5pm}
   end
 
   describe "opening_hours" do
-    it "should fetch the page content" do
-      @library.should_receive(:open).with("http://url").and_return(RAW_INPUT)
-      @library.opening_hours
-    end
-    it "should return a hash of days" do
-      @library.opening_hours.keys.should == [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday]
-    end
-    context "when the library is closed" do
-       it "should create an object with a 'closed' set to true" do
-        @library.opening_hours[:monday].closed?.should be_true
-      end
-      it "should handle non-breaking spaces" do
-        @library.opening_hours[:tuesday].closed?.should be_true
-      end
-    end
-    context "when the library isn't open as normal" do
-      it "should treat it as though it were closed" do
-        @library.opening_hours[:friday].closed?.should be_true
-      end
-    end
-    context "when the library is not closed" do  
-      it "should create an object with closed set to false" do
-        @library.opening_hours[:wednesday].closed.should be_false
-      end
-      it "should set the opening time" do
-        @library.opening_hours[:wednesday].opening_time.should == "10am"
-      end
-      it "should set the closing time" do
-        @library.opening_hours[:wednesday].closing_time.should == "6pm"
-      end
-      it "should handle non-breaking spaces" do
-        @library.opening_hours[:thursday].opening_time.should == "10am"
-      end
-      it "should handle the unicode box character (194)" do
-        @library.opening_hours[:saturday].opening_time.should == "10am"
-      end
-      context "and when the input uses '-' instead of 'to'" do
-        it "should set the opening time" do
-          @library.opening_hours[:sunday].opening_time.should == "12noon"
-        end
-        it "should set the closing time" do
-          @library.opening_hours[:sunday].closing_time.should == "5pm"
-        end
-      end
-    end
-    context "when the list uses br instead of li" do
-      before(:each) do
-        @library.stub(:open).with("http://url").and_return(RAW_INPUT_BR)
+    context "when no parameters are passed" do
+      it "should fetch the page content" do
+        @library.should_receive(:open).with("http://url").and_return(RAW_INPUT)
+        @library.opening_hours
       end
       it "should return a hash of days" do
         @library.opening_hours.keys.should == [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday]
       end
       context "when the library is closed" do
          it "should create an object with a 'closed' set to true" do
-          @library.opening_hours[:sunday].closed?.should be_true
+          @library.opening_hours[:monday].closed?.should be_true
+        end
+        it "should handle non-breaking spaces" do
+          @library.opening_hours[:tuesday].closed?.should be_true
         end
       end
       context "when the library isn't open as normal" do
         it "should treat it as though it were closed" do
-          @library.opening_hours[:tuesday].closed?.should be_true
+          @library.opening_hours[:friday].closed?.should be_true
         end
       end
       context "when the library is not closed" do  
@@ -126,8 +85,128 @@ Sunday:     12noon - 5pm}
         it "should set the closing time" do
           @library.opening_hours[:wednesday].closing_time.should == "6pm"
         end
+        it "should handle non-breaking spaces" do
+          @library.opening_hours[:thursday].opening_time.should == "10am"
+        end
+        it "should handle the unicode box character (194)" do
+          @library.opening_hours[:saturday].opening_time.should == "10am"
+        end
+        context "and when the input uses '-' instead of 'to'" do
+          it "should set the opening time" do
+            @library.opening_hours[:sunday].opening_time.should == "12noon"
+          end
+          it "should set the closing time" do
+            @library.opening_hours[:sunday].closing_time.should == "5pm"
+          end
+        end
+      end
+      context "when the list uses br instead of li" do
+        before(:each) do
+          @library.stub(:open).with("http://url").and_return(RAW_INPUT_BR)
+        end
+        it "should return a hash of days" do
+          @library.opening_hours.keys.should == [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday]
+        end
+        context "when the library is closed" do
+           it "should create an object with a 'closed' set to true" do
+            @library.opening_hours[:sunday].closed?.should be_true
+          end
+        end
+        context "when the library isn't open as normal" do
+          it "should treat it as though it were closed" do
+            @library.opening_hours[:tuesday].closed?.should be_true
+          end
+        end
+        context "when the library is not closed" do  
+          it "should create an object with closed set to false" do
+            @library.opening_hours[:wednesday].closed.should be_false
+          end
+          it "should set the opening time" do
+            @library.opening_hours[:wednesday].opening_time.should == "10am"
+          end
+          it "should set the closing time" do
+            @library.opening_hours[:wednesday].closing_time.should == "6pm"
+          end
+        end
       end
     end
+
+    it "should raise an error if passed a string" do
+      expect{ @library.opening_hours("monday") }.to raise_error(ArgumentError, "Expected a day symbol e.g. :monday, but recieved a String: \"monday\"")
+    end
+    it "should raise an error if passed a date" do
+      expect{ @library.opening_hours(Date.today) }.to raise_error(ArgumentError, /Expected a day symbol e\.g\. :monday, but recieved a Date: \".*\"/)
+    end
+    it "should raise an error if passed an invalid symbol" do
+      expect{ @library.opening_hours(:foo) }.to raise_error(ArgumentError, "Expected a day symbol e.g. :monday, but recieved a Symbol: \"foo\"")
+    end
+
+    shared_examples "an opening hours object" do
+      it "should return an object which responds to '.closed?'" do
+        object.should respond_to(:closed)
+      end
+      it "should return an object which responds to '.opening_time'" do
+        object.should respond_to(:opening_time)
+      end
+      it "should return an object which responds to '.closing_time'" do
+        object.should respond_to(:closing_time)
+      end
+    end
+
+    [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday].each do |daysym|
+      context "when passed '#{daysym}'" do
+        it_should_behave_like "an opening hours object" do
+          let(:object) { @library.opening_hours(daysym) }
+        end
+      end 
+    end
+
+    context "when passed :today" do
+      it_should_behave_like "an opening hours object" do
+        let(:object) { @library.opening_hours(:today) }
+      end
+      it "should return today's opening hours" do
+        Date.stub_chain(:today, :wday).and_return(3) # wednesday
+        @library.opening_hours(:today).closed.should == @library.opening_hours(:wednesday).closed
+        @library.opening_hours(:today).opening_time.should == @library.opening_hours(:wednesday).opening_time
+        @library.opening_hours(:today).closing_time.should == @library.opening_hours(:wednesday).closing_time
+      end
+    end
+    context "when passed :tomorrow" do
+      it_should_behave_like "an opening hours object" do
+        let(:object) { @library.opening_hours(:tomorrow) }
+      end
+      it "should return tomorrow's opening hours" do
+        Date.stub_chain(:tomorrow, :wday).and_return(3) # wednesday
+        @library.opening_hours(:tomorrow).closed.should == @library.opening_hours(:wednesday).closed
+        @library.opening_hours(:tomorrow).opening_time.should == @library.opening_hours(:wednesday).opening_time
+        @library.opening_hours(:tomorrow).closing_time.should == @library.opening_hours(:wednesday).closing_time
+      end
+    end
+    context "when passed :tomorrow" do
+      it_should_behave_like "an opening hours object" do
+        let(:object) { @library.opening_hours(:yesterday) }
+      end
+      it "should return yesterday's opening hours" do
+        Date.stub_chain(:yesterday, :wday).and_return(3) # wednesday
+        @library.opening_hours(:yesterday).closed.should == @library.opening_hours(:wednesday).closed
+        @library.opening_hours(:yesterday).opening_time.should == @library.opening_hours(:wednesday).opening_time
+        @library.opening_hours(:yesterday).closing_time.should == @library.opening_hours(:wednesday).closing_time
+      end
+    end
+    # context "when passed '#{daysym}'" do
+    #     it "should return an object which responds to '.closed?'" do
+    #       @library.opening_hours(daysym).should respond_to(:closed)
+    #     end
+    #     it "should return an object which responds to '.opening_time'" do
+    #       @library.opening_hours(daysym).should respond_to(:opening_time)
+    #     end
+    #     it "should return an object which responds to '.closing_time'" do
+    #       @library.opening_hours(daysym).should respond_to(:closing_time)
+    #     end
+    #   end 
+    # end
+
   end
 
   describe "display" do
