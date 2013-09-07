@@ -11,6 +11,13 @@ module Runner
     end
   end
 
+  def self.display_day(day)
+    day_sym = day.strip.downcase.to_sym
+    libraries.each_pair do | name, url |
+      puts Library.new(name, "#{BASE_URL}#{url}").display_day(day_sym)
+    end
+  end
+
   def self.display(library_name)
     library = Library.new library_name, "#{BASE_URL}/Services/LeisureCulture/Libraries/LocalLibraries/#{library_name.delete(" ")}.htm"
     puts library.display

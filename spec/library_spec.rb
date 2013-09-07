@@ -33,6 +33,8 @@ Friday:     closed
 Saturday:   10am - 6pm
 Sunday:     12noon - 5pm}
 
+  PRINTED_OUTPUT_WEDNESDAY = %{Narnia Library:          10am - 6pm}
+
   before(:each) do
     @library = Library.new "Narnia Library", "http://url"
     Library.any_instance.stub(:open).and_return(RAW_INPUT)
@@ -166,7 +168,7 @@ Sunday:     12noon - 5pm}
         let(:object) { @library.opening_hours(:today) }
       end
       it "should return today's opening hours" do
-        Date.stub_chain(:today, :wday).and_return(3) # wednesday
+        Date.any_instance.stub(:wday).and_return(3) # wednesday
         @library.opening_hours(:today).closed.should == @library.opening_hours(:wednesday).closed
         @library.opening_hours(:today).opening_time.should == @library.opening_hours(:wednesday).opening_time
         @library.opening_hours(:today).closing_time.should == @library.opening_hours(:wednesday).closing_time
@@ -177,36 +179,23 @@ Sunday:     12noon - 5pm}
         let(:object) { @library.opening_hours(:tomorrow) }
       end
       it "should return tomorrow's opening hours" do
-        Date.stub_chain(:tomorrow, :wday).and_return(3) # wednesday
+        Date.any_instance.stub(:wday).and_return(3) # wednesday
         @library.opening_hours(:tomorrow).closed.should == @library.opening_hours(:wednesday).closed
         @library.opening_hours(:tomorrow).opening_time.should == @library.opening_hours(:wednesday).opening_time
         @library.opening_hours(:tomorrow).closing_time.should == @library.opening_hours(:wednesday).closing_time
       end
     end
-    context "when passed :tomorrow" do
+    context "when passed :yesterday" do
       it_should_behave_like "an opening hours object" do
         let(:object) { @library.opening_hours(:yesterday) }
       end
       it "should return yesterday's opening hours" do
-        Date.stub_chain(:yesterday, :wday).and_return(3) # wednesday
+        Date.any_instance.stub(:wday).and_return(3) # wednesday
         @library.opening_hours(:yesterday).closed.should == @library.opening_hours(:wednesday).closed
         @library.opening_hours(:yesterday).opening_time.should == @library.opening_hours(:wednesday).opening_time
         @library.opening_hours(:yesterday).closing_time.should == @library.opening_hours(:wednesday).closing_time
       end
     end
-    # context "when passed '#{daysym}'" do
-    #     it "should return an object which responds to '.closed?'" do
-    #       @library.opening_hours(daysym).should respond_to(:closed)
-    #     end
-    #     it "should return an object which responds to '.opening_time'" do
-    #       @library.opening_hours(daysym).should respond_to(:opening_time)
-    #     end
-    #     it "should return an object which responds to '.closing_time'" do
-    #       @library.opening_hours(daysym).should respond_to(:closing_time)
-    #     end
-    #   end 
-    # end
-
   end
 
   describe "display" do
@@ -214,6 +203,12 @@ Sunday:     12noon - 5pm}
     # involve creating yet another big ugly data structure for testing.
     it "should produce nicely formatted output for the command line" do
       @library.display.should == PRINTED_OUTPUT
+    end
+  end
+
+  describe "display_day" do
+    it "should produce nicely formatted output for the command line" do
+      @library.display_day(:wednesday).should == PRINTED_OUTPUT_WEDNESDAY
     end
   end
 end

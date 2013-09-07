@@ -1,16 +1,27 @@
 #!/usr/bin/env ruby
 
 require_relative '../lib/runner'
+require 'pry'
+
+USAGE = %{Usage:
+  lambeth_libraries                 # Display opening hours for all 9 libraries
+  lambeth_libraries [DAY]           # Display opening hours for all 9 libraries on one day. Accepts "Today" etc.
+  lambeth_libraries [LIBRARY_NAME]  # Display opening hours for one library 
+  lambeth_libraries list            # Display the list of library names}
 
 if ARGV.empty? || ARGV[0] == "all"
   Runner.display_all
 elsif ARGV[0] == "list"
   puts Runner.list
-elsif Runner.list.include?(ARGV.join(" ")) || Runner.list.include?((ARGV << "Library").join(" "))
+elsif Runner.list.include?(ARGV.join(" ")) || Runner.list.include?(ARGV.join(" ") + " Library")
   Runner.display(ARGV.join(" "))
+elsif ARGV.length == 1 # Assume it's a day - it'll throw an argument error if not 
+  begin 
+    Runner.display_day(ARGV[0])
+  rescue ArgumentError
+    puts USAGE
+  end
 else
-  puts %{Usage:
-  lambeth_libraries                 # Display opening hours for all 9 libraries
-  lambeth_libraries [LIBRARY_NAME]  # Display opening hours for one library 
-  lambeth_libraries list            # Display the list of library names}
+  puts USAGE
 end
+
