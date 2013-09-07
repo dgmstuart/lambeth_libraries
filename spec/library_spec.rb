@@ -32,7 +32,8 @@ Thursday:   10am - 6pm
 Friday:     closed
 Saturday:   10am - 6pm
 Sunday:     12noon - 5pm}
-
+  
+  PRINTED_OUTPUT_MONDAY =    %{Narnia Library:          closed}
   PRINTED_OUTPUT_WEDNESDAY = %{Narnia Library:          10am - 6pm}
 
   before(:each) do
@@ -56,6 +57,11 @@ Sunday:     12noon - 5pm}
   end
 
   describe "opening_hours" do
+    it "should raise an error if the content could not be parsed" do
+      @library.stub(:parse_hours).and_raise(Library::ParseError, "foo")
+      expect{ @library.opening_hours }.to raise_error("Couldn't parse the page content: foo")
+    end
+
     context "when no parameters are passed" do
       it "should fetch the page content" do
         @library.should_receive(:open).with("http://url").and_return(RAW_INPUT)
@@ -209,6 +215,10 @@ Sunday:     12noon - 5pm}
   describe "display_day" do
     it "should produce nicely formatted output for the command line" do
       @library.display_day(:wednesday).should == PRINTED_OUTPUT_WEDNESDAY
+    end
+    it "should produce nicely formatted output for the command line, when closed" do
+      # N.B. Monday is closed
+      @library.display_day(:monday).should == PRINTED_OUTPUT_MONDAY
     end
   end
 end
