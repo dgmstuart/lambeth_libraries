@@ -10,10 +10,19 @@ class Library
     @url = url   
   end
 
-  def opening_hours
+  def opening_hours(day=nil)
+    day = get_day_sym(day) if RELATIVE_DAY_SYMBOLS.include?(day)
+    raise ArgumentError, "Expected a day symbol e.g. :monday, but recieved a #{day.class}: \"#{day}\"" unless day.nil? || DAY_SYMBOLS.include?(day)
+
     @library_page = Nokogiri::HTML(open(@url))
     find_opening_hours_list
-    build_opening_hours
+    oh = build_opening_hours
+
+    if day.nil?
+      oh
+    else
+      oh[day]
+    end
   end
 
   def display
@@ -33,8 +42,23 @@ class Library
     end
     output
   end
+
+  def display_day(day_sym)
+    output = ""
+    output << "#{@name}:".ljust(25)
+    
+    opening_day = opening_hours(day_sym)
+    if opening_day.closed? 
+      output << "closed"
+    else
+      output<< "#{opening_day.opening_time} - #{opening_day.closing_time}"
+    end
+  end
   
   private
+
+  DAY_SYMBOLS = [:monday, :tuesday, :wednesday, :thursday, :friday, :saturday, :sunday]
+  RELATIVE_DAY_SYMBOLS = [:today, :tomorrow, :yesterday]
 
   class ParseError < StandardError  
   end  
@@ -111,4 +135,13 @@ class Library
       @closing_time = params[:closing_time]
     end
   end
+
+  def get_day_sym(relative_day_sym)
+    raise ArgumentError, "Expected one of #{RELATIVE_DAY_SYMBOLS.inspect}" unless RELATIVE_DAY_SYMBOLS.include? relative_day_sym
+    date = Date.today if relative_day_sym == :today
+    date = Date.today + 1 if relative_day_sym == :tomorrow
+    date = Date.today - 1 if relative_day_sym == :yesterday
+    Date::DAYNAMES[date.wday].downcase.to_sym
+  end
+
 end

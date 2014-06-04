@@ -8,8 +8,6 @@ TODO:
 
 * Make into a gem
 * Create a webpage that periodically scrapes this data and displays it all on one page
-* Add more features:
-    * Show opening hours for today
 
 Feedback
 --------
@@ -49,6 +47,12 @@ To display all the opening times for Lambeth's libraries:
 To display the opening times for a particular library:
 
     % lambeth_libraries Brixton
+
+To display the opening times for a particular day:
+
+    % lambeth_libraries Tuesday
+    % lambeth_libraries Today
+    % lambeth_libraries Tomorrow
     
 To display the list of libraries:
 
