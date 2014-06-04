@@ -7,7 +7,7 @@ module Runner
   def self.display_all
     libraries.each_pair do | name, url |
       puts Library.new(name, "#{BASE_URL}#{url}").display
-      puts 
+      puts
     end
   end
 
@@ -19,12 +19,13 @@ module Runner
   def self.list
     libraries.keys
   end
-   
-  private 
-  
+
+  private
+
   def self.libraries
     page = Nokogiri::HTML(open(LIBRARY_PAGE_URL))
     names_and_urls = page.css("h2 a").map { |a| [a.text, a['href']] }
+    raise "No Libraries found" if names_and_urls.empty? || names_and_urls.nil?
     Hash[names_and_urls]
   end
 end
